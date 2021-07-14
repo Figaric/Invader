@@ -1,15 +1,13 @@
-import { model, Schema } from "mongoose";
+import { prop, getModelForClass } from "@typegoose/typegoose";
 
-const userSchema = new Schema({
-    username: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    password: {
-        type: String,
-        required: true
-    }
-});
+export class User {
+    @prop({ required: true, unique: true })
+    username: string;
 
-export default model("User", userSchema);
+    @prop({ required: true })
+    password: string;
+}
+
+const UserModel = getModelForClass(User);
+
+export default UserModel;
