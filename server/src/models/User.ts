@@ -1,13 +1,15 @@
-import { Entity, BaseEntity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { model, Schema } from "mongoose";
 
-@Entity("users")
-export default class User extends BaseEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+const userSchema = new Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    }
+});
 
-    @Column({ nullable: false, unique: true })
-    username!: string;
-
-    @Column({ nullable: false })
-    password!: string;
-}
+export default model("User", userSchema);
