@@ -1,36 +1,30 @@
+import connectRedis from "connect-redis";
+import redis from "ioredis";
 import env from "dotenv";
+import express from "express";
+import session from "express-session";
 env.config();
 
-import session from "express-session";
-import redis from "ioredis";
-import express from "express";
-import connectRedis from "connect-redis";
 import { __prod__ } from "./constants";
+import mongoose from "mongoose";
 import accountRouter from "./routes/AccountRouter";
-import { createConnection } from "typeorm";
-import User from "./models/User";
 
 const main = async () => {
     const app = express();
+    const RedisStore = connectRedis(session);
+    const redisClient = new redis(6379, "127.0.0.1");
 
-    await createConnection({
-        type: "mongodb",
-        url: process.env.CONNECTION_URL,
-        synchronize: true,
-        logging: true,
+    mongoose.connect(process.env.CONNECTION_URL!, {
         useNewUrlParser: true,
-        useUnifiedTopology: true,
-        entities: [User]
+        useUnifiedTopology: true
     });
 
-    const RedisStore = connectRedis(session);
-    const client = new redis(6379, "127.0.0.1");
-
+    // middlewares
     app.use(express.json());
     app.use(session({
         name: "qid",
         store: new RedisStore({
-            client,
+            client: redisClient,
             disableTouch: true
         }),
         saveUninitialized: false,
@@ -43,6 +37,8 @@ const main = async () => {
             secure: __prod__
         }
     }));
+
+    // routes
     app.use("/account", accountRouter);
 
     app.listen(8080, () => {
