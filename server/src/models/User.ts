@@ -1,13 +1,25 @@
-import { prop, getModelForClass } from "@typegoose/typegoose";
+import { Field, Int, ObjectType } from "type-graphql";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import GroupMember from "./GroupMember";
+import Post from "./Post";
 
-export class User {
-    @prop({ required: true, unique: true })
-    username: string;
+@Entity({ name: "users" })
+@ObjectType()
+export default class User extends BaseEntity {
+    @PrimaryGeneratedColumn()
+    @Field(() => Int)
+    id: number;
 
-    @prop({ required: true })
-    password: string;
+    @Column({ nullable: false, unique: true, length: 255 })
+    @Field()
+    username!: string;
+
+    @Column({ nullable: false })
+    password!: string;
+
+    @OneToMany(() => GroupMember, gm => gm.member)
+    groups: GroupMember[];
+
+    @OneToMany(() => Post, p => p.author)
+    posts: Post[];
 }
-
-const UserModel = getModelForClass(User);
-
-export default UserModel;
