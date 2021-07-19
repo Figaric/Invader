@@ -1,0 +1,6 @@
+query MyGroups {
+  myGroups {
+    id
+    name
+  }
+}
