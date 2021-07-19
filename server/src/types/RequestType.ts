@@ -1,7 +1,6 @@
 import { Request } from "express";
 import { Session } from "express-session";
-import { ObjectId } from "mongoose";
 
-type RequestType = Request & { session: Session & { userId?: ObjectId } };
+type RequestType = Request & { session: Session & { userId?: number } };
 
 export default RequestType;
