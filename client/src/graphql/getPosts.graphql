@@ -1,0 +1,10 @@
+query GetPosts($groupId: Int!) {
+  getPosts(groupId: $groupId) {
+    title
+    text
+    author {
+      id
+      username
+    }
+  }
+}
