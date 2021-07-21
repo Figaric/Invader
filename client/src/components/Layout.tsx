@@ -10,11 +10,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <Flex
             height={"100vh"}
             flexDir={"column"}
-            bg={"white"}
-            bgImage={'url("http://localhost:3000/spikes.png")'}
-            bgPos={"center"}
-            bgRepeat={"repeat"}>
-            
+            bg={"#0D1117"}
+            // bgImage={'url("http://localhost:3000/spikes.png")'}
+            // bgPos={"center"}
+            // bgRepeat={"repeat"}
+            >
             {/* NavBar */}
 
             {children}
