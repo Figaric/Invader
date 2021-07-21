@@ -2,7 +2,7 @@ import "reflect-metadata";
 import dotenv from "dotenv";
 dotenv.config();
 
-import uuid from "uuid";
+import { v4 } from "uuid";
 import express = require("express");
 import session = require("express-session");
 import connectRedis from "connect-redis";
@@ -20,6 +20,7 @@ import GroupResolver from "./resolvers/GroupResolver";
 import cors from "cors";
 import UserResolver from "./resolvers/UserResolver";
 import FieldError from "./errors/FieldError";
+import PostResolver from "./resolvers/PostResolver";
 
 const main = async () => {
     const app = express();
@@ -70,7 +71,7 @@ const main = async () => {
     // apollo server
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [GroupResolver, UserResolver],
+            resolvers: [GroupResolver, UserResolver, PostResolver],
             validate: false
         }),
         formatError: (err) => {
@@ -82,7 +83,7 @@ const main = async () => {
                 return { message: err.message, code: err.extensions!.code };
             }
 
-            const errorId = uuid.v4();
+            const errorId = v4();
             console.error("Error id: ", errorId);
             console.error("Error: ", err);
 
