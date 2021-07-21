@@ -21,19 +21,20 @@ function Register() {
                 <Box
                     width={"100%"}
                     maxWidth={"30em"}
-                    bg={"white"}
+                    bg={"#1A2028"}
                     boxShadow={"0 10px 20px rgba(0, 0, 0, 0.2)"}
                     rounded={"0.5rem"}>
                     <Flex
                         p={"40px"}
                         py={"25px"}
-                        bgGradient={"linear(to-l, #021B79, #0575E6)"}
+                        bgGradient={"linear(to-l, #D52F1B, #FB8717)"}
                         alignItems={"center"}
                         roundedTop={"0.5rem"}>
                         <Heading fontWeight={200} color={"white"}>Register</Heading>
                     </Flex>
                     <Box
-                        p={"40px"}>
+                        p={"40px"}
+                        pt={"25px"}>
                         <Formik
                             initialValues={{ username: "", password: "" }}
                             onSubmit={async ({ username, password }, { setFieldError, setSubmitting }) => {
@@ -44,8 +45,8 @@ function Register() {
                                 } catch(err) {
                                     const graphQlError = err.graphQLErrors[0];
 
-                                    if(graphQlError.extensions.code === "FIELD_ERROR") {
-                                        return setFieldError(graphQlError.extensions.exception.field, err.message);
+                                    if(graphQlError.code === "FIELD_ERROR") {
+                                        return setFieldError(graphQlError.field, err.message);
                                     }
 
                                     throw new Error("Something went wrong");
@@ -64,26 +65,30 @@ function Register() {
                                         label={"Username"}
                                         placeholder={"Username"} />
                                     <InputField
+                                        name={"email"}
+                                        label={"Email"}
+                                        placeholder={"Email"} />
+                                    <InputField
                                         name={"password"}
                                         label={"Password"}
                                         placeholder={"Password"}
-                                        type={"password"} />
-                                    <Flex
-                                        pb={4}
-                                        justifyContent={"flex-end"}>
+                                        type={"password"}
+                                        hideForgotPassword />
+                                    <Flex>
+                                        <Button
+                                            colorScheme={"orange"}
+                                            isLoading={isSubmitting}
+                                            type={"submit"}>
+                                            Sing Up
+                                        </Button>
                                         <NextLink
-                                            href={"/"}>
-                                            <Link color={"gray.700"}>
-                                                forgot password
+                                            href={"/login"}>
+                                            <Link
+                                                pl={4} fontSize={"15px"} my={"auto"} color={"white"}>
+                                                Already have account?
                                             </Link>
                                         </NextLink>
                                     </Flex>
-                                    <Button
-                                        colorScheme={"blue"}
-                                        isLoading={isSubmitting}
-                                        type={"submit"}>
-                                        Sing Up
-                                    </Button>
                                 </Form>
                             )}
                         </Formik>
