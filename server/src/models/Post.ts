@@ -21,6 +21,7 @@ export default class Post extends BaseEntity {
     @Column()
     @Field(() => Int)
     authorId!: number;
+    @Field(() => User)
     @ManyToOne(() => User, u => u.posts)
     @JoinColumn({ name: "authorId" })
     author: User;
