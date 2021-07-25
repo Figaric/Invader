@@ -1,33 +1,94 @@
-import { Flex } from '@chakra-ui/react';
-import { useRouter } from 'next/dist/client/router'
-import React from 'react'
-import Layout from '../../components/Layout'
+import { Text, Box, Flex, Heading } from '@chakra-ui/react';
+import Pusher from 'pusher-js';
+import React, { Component, useEffect, useState } from 'react';
+import Layout from '../../components/Layout';
+import ManageGroupBtns from '../../components/ManageGroupBtns';
+import PageLoading from '../../components/PageLoading';
 import Post from '../../components/Post';
+import { useGetGroupQuery } from '../../generated/graphql';
+import { useGetIntId } from '../../utils/useGetIntId';
 
-function Group() {
-    const router = useRouter();
+export default class Group extends Component {
+    state = {
+        groupData: ,
 
-    return (
-        <Layout>
-            <Flex
-                flex={1}
-                justifyContent={"center"}
-                alignItems={"flex-start"}
-                pt={"2rem"}>
-                <Flex
-                    maxW={"40rem"}
-                    width={"100%"}
-                    bg={"transparent"}
-                    flexDirection={"column"}>
-                    <Post title={"A bit of Lorem Ipsum"} text={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."} />
-                    <Post title={"A bit of Lorem Ipsum"} text={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."} />
-                    <Post title={"A bit of Lorem Ipsum"} text={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."} />
-                    <Post title={"A bit of Lorem Ipsum"} text={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."} />
-                    <Post title={"A bit of Lorem Ipsum"} text={"Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."} />
-                </Flex>
-            </Flex>
-        </Layout>
-    )
+    }
+
+    async componentDidMount() {
+        const { data }
+    }
+
+    render {
+        
+    }
 }
+
+// const Group: React.FC = () => {
+//     const [posts, setPosts] = useState([]);
+//     const id = useGetIntId();
+//     const { data, error, loading } = useGetGroupQuery({
+//         skip: id === -1,
+//         variables: {
+//             groupId: id
+//         }
+//     });
+
+//     useEffect(() => {
+//         const pusher = new Pusher("aae9612466e1254ef58d", {
+//             cluster: "eu"
+//         });
+
+//         const groupChannel = pusher.subscribe(`group-${id}`);
+//         groupChannel.bind("post-created", (newPost) => {
+//             setPosts(prevState => [...prevState, newPost]);
+//         });
+//     });
+
+//     if(loading) {
+//         return null
+//     }
+
+//     if(!data) {
+//         return (
+//             <Layout>
+//                 <Text>There is no group with id {id}</Text>
+//             </Layout>
+//         );
+//     }
+
+//     // console.log("posts: ", data.getGroup.posts.length)
+
+//     return (
+//         // <Layout>
+//         //     <Flex
+//         //         flex={1}
+//         //         justifyContent={"center"}
+//         //         alignItems={"flex-start"}>
+//         //         <Flex
+//         //             mt={5}
+//         //             w={"100%"}
+//         //             maxW={"45rem"}
+//         //             flexDirection={"column"}>
+//         //             <Flex  justifyContent={"space-between"}>
+//         //                 <Flex flexDirection={"column"} justifyContent={"space-between"}>
+//         //                     <Heading mb={4} fontWeight={600}>{data.getGroup.name}</Heading>
+//         //                     <Text fontSize={19}>{data.getGroup.description}</Text>
+//         //                 </Flex>
+//         //                 <ManageGroupBtns groupId={id} />
+//         //             </Flex>
+
+//         //             {/* Posts */}
+//         //             { data.getGroup.posts.length > 0 ?
+//         //                 <Flex flexDirection={"column"}>
+//         //                     {posts.map(p => (
+//         //                         <Post key={p.id} title={p.title} text={p.text}/>
+//         //                     ))}
+//         //                 </Flex>
+//         //             : null }
+//         //         </Flex>
+//         //     </Flex>
+//         // </Layout>
+//     )
+// }
 
 export default Group
