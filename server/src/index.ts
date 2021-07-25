@@ -36,7 +36,7 @@ const main = async () => {
 
     const pusher = new Pusher({
         appId: "1230019",
-        key: "aae9612466e1254ef58d",
+        key: process.env.PUSHER_APP_KEY!,
         secret: process.env.PUSHER_APP_SECRET!,
         cluster: "eu",
         useTLS: true
