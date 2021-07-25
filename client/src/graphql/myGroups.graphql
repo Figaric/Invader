@@ -2,5 +2,6 @@ query MyGroups {
   myGroups {
     id
     name
+    description
   }
 }
