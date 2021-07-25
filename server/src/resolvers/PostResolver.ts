@@ -11,7 +11,7 @@ import { getConnection } from "typeorm";
 export default class PostResolver {
     @Query(() => [Post])
     async getPosts(
-        @Arg("groupId") groupId: number
+        @Arg("groupId", () => Int) groupId: number
     ): Promise<Post[]> {
         if(!(await Group.findOne({ where: { groupId } }))) {
             throw new ApolloError("This group doesn't exist.");
@@ -36,18 +36,25 @@ export default class PostResolver {
         @Arg("title") title: string,
         @Arg("text") text: string,
         @Arg("groupId", () => Int) groupId: number,
-        @Ctx() { req }: ContextType
+        @Ctx() { req, pusher }: ContextType
     ): Promise<boolean> {
         if(!(await GroupMember.findOne({ where: { memberId: req.session.userId, groupId } }))) {
             throw new ApolloError("You're not in the group", "NOT_IN_GROUP");
         }
 
-        await Post.create({
+        const newPost = await Post.create({
             authorId: req.session.userId,
             groupId,
             title,
             text
         }).save();
+
+        pusher.trigger(`group-${groupId}`, "post-created", {
+            id: newPost.id,
+            title,
+            text,
+            authorId: req.session.userId
+        });
 
         return true;
     }
