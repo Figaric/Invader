@@ -14,9 +14,19 @@ export default class Group extends BaseEntity {
     @Field({ nullable: true })
     name!: string;
 
+    @Column()
+    @Field()
+    description!: string;
+    
+    // @Column()
+    // @Field()
+    // icon!: string;
+
     @OneToMany(() => Post, p => p.group)
+    @Field(() => [Post])
     posts: Post[];
     
     @OneToMany(() => GroupMember, gm => gm.group)
+    @Field(() => [GroupMember])
     members: GroupMember[];
 }
