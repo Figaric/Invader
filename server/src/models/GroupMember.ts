@@ -15,6 +15,7 @@ export default class GroupMember extends BaseEntity {
     memberId: number;
     @ManyToOne(() => User, u => u.groups)
     @JoinColumn({ name: "memberId" })
+    @Field(() => User)
     member: User;
     
     @PrimaryColumn()
