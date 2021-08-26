@@ -1,11 +1,12 @@
 import { Field, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import BetterEntity from "./BetterEntity";
 import Group from "./Group";
 import User from "./User";
 
 @Entity({ name: "groupMembers" })
 @ObjectType()
-export default class GroupMember extends BaseEntity {
+export default class GroupMember extends BetterEntity {
     @Column({ default: false })
     @Field()
     isAdmin: boolean;

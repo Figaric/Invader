@@ -1,17 +1,18 @@
 import { Field, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import BetterEntity from "./BetterEntity";
 import Group from "./Group";
 import User from "./User";
 
 @Entity({ name: "posts" })
 @ObjectType()
-export default class Post extends BaseEntity {
+export default class Post extends BetterEntity {
     @PrimaryGeneratedColumn()
     @Field(() => Int)
     id: number;
 
-    @Column({ nullable: false, length: 255 })
     @Field()
+    @Column({ nullable: false, length: 255 })
     title!: string;
 
     @Column({ nullable: false })
@@ -29,14 +30,8 @@ export default class Post extends BaseEntity {
     @Column()
     @Field(() => Int)
     groupId!: number;
-    @ManyToOne(() => Group, g => g.posts)
+    @Field(() => Group)
+    @ManyToOne(() => Group, p => p.posts)
     @JoinColumn({ name: "groupId" })
     group: Group;
-
-    @CreateDateColumn()
-    @Field()
-    createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
 }

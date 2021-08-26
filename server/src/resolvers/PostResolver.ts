@@ -1,11 +1,10 @@
-import Post from "../models/Post";
-import { Arg, Ctx, Int, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
-import MustBeAuth from "../middlewares/MustBeAuth";
-import ContextType from "../types/ContextType";
-import GroupMember from "../models/GroupMember";
-import { ApolloError } from "apollo-server-express";
-import Group from "../models/Group";
+import Post from "../entities/Post";
+import { Arg, Ctx, Int, Mutation, PubSub, PubSubEngine, Query, Resolver, Root, Subscription, UseMiddleware } from "type-graphql";
 import { getConnection } from "typeorm";
+import Group from "../entities/Group";
+import { UserInputError } from "apollo-server-core";
+import ApolloContext from "../types/ApolloContext";
+import MustBeAuth from "../middlewares/MustBeAuth";
 
 @Resolver(Post)
 export default class PostResolver {
@@ -13,21 +12,27 @@ export default class PostResolver {
     async getPosts(
         @Arg("groupId", () => Int) groupId: number
     ): Promise<Post[]> {
-        if(!(await Group.findOne({ where: { groupId } }))) {
-            throw new ApolloError("This group doesn't exist.");
-        }
-
-        const posts = await getConnection().query(`
-        select p.title, p.text, 
+        const posts = await getConnection("development").query(`
+        select p.*,
         json_build_object(
-            'username', $1
-        ) creator,
-        from posts
-        inner join "groups" g on g."groupId" = p.id
-        where p."groupId";
-        `);
+            'id', u.id,
+            'username', u.username
+        ) author
+        from "posts" p
+        inner join public.users u on u.id = p."authorId"
+        where p."groupId" = $1;
+        `, [groupId]);
 
         return posts;
+    }
+
+    @Subscription({
+        topics: "POST_NEW"
+    })
+    newPost(
+        @Root() postPayload: { post: Post }
+    ): Post {
+        return postPayload.post;
     }
 
     @Mutation(() => Boolean)
@@ -36,25 +41,29 @@ export default class PostResolver {
         @Arg("title") title: string,
         @Arg("text") text: string,
         @Arg("groupId", () => Int) groupId: number,
-        @Ctx() { req, pusher }: ContextType
+        @Ctx() { req }: ApolloContext,
+        @PubSub() pubSub: PubSubEngine
     ): Promise<boolean> {
-        if(!(await GroupMember.findOne({ where: { memberId: req.session.userId, groupId } }))) {
-            throw new ApolloError("You're not in the group", "NOT_IN_GROUP");
+        const group = await Group.findOne({ where: { id: groupId } });
+
+        if(!group) {
+            throw new UserInputError("Group with this id is not found", {
+                field: "groupId"
+            });
         }
 
-        const newPost = await Post.create({
-            authorId: req.session.userId,
-            groupId,
-            title,
-            text
-        }).save();
-
-        pusher.trigger(`group-${groupId}`, "post-created", {
-            id: newPost.id,
+        const post = Post.create({
             title,
             text,
+            groupId,
             authorId: req.session.userId
         });
+
+        await Post.insert(post);
+
+        // triggering subscription "newPost"
+        const postPayload = { post };
+        await pubSub.publish("POST_NEW", postPayload);
 
         return true;
     }

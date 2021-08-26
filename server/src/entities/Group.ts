@@ -1,32 +1,27 @@
 import { Field, Int, ObjectType } from "type-graphql";
-import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import BetterEntity from "./BetterEntity";
 import GroupMember from "./GroupMember";
 import Post from "./Post";
 
 @Entity({ name: "groups" })
 @ObjectType()
-export default class Group extends BaseEntity {
+export default class Group extends BetterEntity {
     @PrimaryGeneratedColumn()
-    @Field(() => Int, { nullable: true })
+    @Field(() => Int)
     id: number;
 
-    @Column()
-    @Field({ nullable: true })
+    @Field()
+    @Column({ nullable: false, unique: true, length: 255 })
     name!: string;
 
-    @Column()
     @Field()
+    @Column({ nullable: false })
     description!: string;
-    
-    // @Column()
-    // @Field()
-    // icon!: string;
 
     @OneToMany(() => Post, p => p.group)
-    @Field(() => [Post])
     posts: Post[];
-    
+
     @OneToMany(() => GroupMember, gm => gm.group)
-    @Field(() => [GroupMember])
     members: GroupMember[];
 }

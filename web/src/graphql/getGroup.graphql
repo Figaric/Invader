@@ -1,0 +1,7 @@
+query GetGroup($groupId: Int!) {
+  getGroup(groupId: $groupId) {
+    id
+    name
+    description
+  }
+}

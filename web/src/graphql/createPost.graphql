@@ -1,0 +1,3 @@
+mutation CreatePost($title: String!, $text: String!, $groupId: Int!) {
+  createPost(title: $title, text: $text, groupId: $groupId)
+}

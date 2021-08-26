@@ -1,106 +1,75 @@
 import "reflect-metadata";
-import dotenv from "dotenv";
-dotenv.config();
 
-import { v4 } from "uuid";
-import express = require("express");
-import session = require("express-session");
-import connectRedis from "connect-redis";
-import redis from "ioredis";
-import { createConnection } from "typeorm";
-import Group from "./models/Group";
-import User from "./models/User";
-import Post from "./models/Post";
-import GroupMember from "./models/GroupMember";
-import Pusher from "pusher";
-import { ApolloServer, ForbiddenError } from "apollo-server-express";
+import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
+import { ApolloServer } from "apollo-server-express";
+import express from "express";
 import { buildSchema } from "type-graphql";
-import ContextType from "./types/ContextType";
-import GroupResolver from "./resolvers/GroupResolver";
-import cors from "cors";
+import { createConnection } from "typeorm";
 import UserResolver from "./resolvers/UserResolver";
-import FieldError from "./errors/FieldError";
+import ApolloContext from "./types/ApolloContext";
+import handleError from "./utils/handleError";
+import setupRedis from "./utils/setupRedis";
+import setupSession from "./utils/setupSession";
+import cors from "cors";
+import http from "http";
+import { execute, subscribe } from "graphql";
+import { SubscriptionServer } from "subscriptions-transport-ws";
 import PostResolver from "./resolvers/PostResolver";
+import GroupResolver from "./resolvers/GroupResolver";
 
-const main = async () => {
+async function main() {
     const app = express();
-    await createConnection({
-        type: "postgres",
-        username: "postgres",
-        password: "845967213",
-        database: "invader",
-        logging: true,
-        synchronize: true,
-        entities: [Group, User, Post, GroupMember]
-    });
+    const httpServer = http.createServer(app);
+    const PORT = process.env.PORT || 8080;
+    await createConnection("development"); // Use ormconfig.json
 
-    const pusher = new Pusher({
-        appId: "1230019",
-        key: process.env.PUSHER_APP_KEY!,
-        secret: process.env.PUSHER_APP_SECRET!,
-        cluster: "eu",
-        useTLS: true
-    });
+    const redisClient = setupRedis();
 
-    const RedisStore = connectRedis(session);
-    const redisClient = new redis();
+    //#region Configure express middlewares
 
-    // middlewares
     app.use(cors({
-        credentials: true,
-        origin: "http://localhost:3000"
+        origin: "http://localhost:3000",
+        credentials: true
     }));
-    app.use(express.json());
-    app.use(session({
-        name: "qid",
-        store: new RedisStore({
-            client: redisClient,
-            disableTouch: true
-        }),
-        cookie: {
-            httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24 * 365 * 5,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production"
-        },
-        resave: false,
-        saveUninitialized: false,
-        secret: process.env.SESSION_SECRET!
-    }));
+    setupSession(app, redisClient);
 
-    // apollo server
-    const apolloServer = new ApolloServer({
-        schema: await buildSchema({
-            resolvers: [GroupResolver, UserResolver, PostResolver],
-            validate: false
-        }),
-        formatError: (err) => {
-            if(err.originalError instanceof FieldError) {
-                return { message: err.message, field: err.extensions!.exception.field, code: err.extensions!.code };
-            }
+    //#endregion
 
-            if(err.originalError instanceof ForbiddenError) {
-                return { message: err.message, code: err.extensions!.code };
-            }
-
-            const errorId = v4();
-            console.error("Error id: ", errorId);
-            console.error("Error: ", err);
-
-            return { message: "Something went wrong", code: err.extensions!.code, errorId };
-        },
-        context: ({ req, res }) => ({ req, res, pusher } as ContextType)
+    const graphqlSchema = await buildSchema({
+        resolvers: [UserResolver, PostResolver, GroupResolver],
+        validate: false
     });
 
-    await apolloServer.start();
-
-    apolloServer.applyMiddleware({ app, cors: false });
-
-    app.listen(8080, () => {
-        console.log("Server started on localhost:8080");
+    const apollo = new ApolloServer({
+        schema: graphqlSchema,
+        plugins: [
+            ApolloServerPluginLandingPageGraphQLPlayground
+        ],
+        formatError: handleError,
+        context: ({ req, res }) => ({ req, res } as ApolloContext)
     });
-};
 
-main().catch(err => {
-    console.error(err);
-});
+    await apollo.start();
+    apollo.applyMiddleware({ app, cors: false });
+
+    //#region Setup subscription server
+
+    const subscriptionServer = SubscriptionServer.create({
+        schema: graphqlSchema,
+        execute,
+        subscribe,
+    }, {
+        server: httpServer,
+        path: apollo.graphqlPath,
+    });
+
+    ['SIGINT', 'SIGTERM'].forEach(signal => {
+        process.on(signal, () => subscriptionServer.close());
+    });
+
+    //#endregion
+
+    httpServer.listen(PORT, () => console.log("Server started on port " + PORT));
+}
+
+main().catch(console.error);

@@ -1,44 +1,53 @@
-import User from "../models/User";
+import User from "../entities/User";
 import { Arg, Ctx, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
-import ContextType from "../types/ContextType";
-import FieldError from "../errors/FieldError";
-import argon2 from "argon2";
+import ApolloContext from "../types/ApolloContext";
 import validator from "validator";
-import { ApolloError } from "apollo-server-express";
-import MustBeAuth from "../middlewares/MustBeAuth";
+import { ApolloError, UserInputError } from "apollo-server-express";
+import argon2 from "argon2";
+import registerSchema from "../validation/RegisterSchema";
 
 @Resolver(User)
 export default class UserResolver {
-    @Query(() => User, { nullable: true })
-    @UseMiddleware(MustBeAuth)
+    @Query(() => User)
+    @UseMiddleware()
     async me(
-        @Ctx() { req }: ContextType
-    ): Promise<User | undefined> {
-        const currentUser = await User.findOne({ where: { id: req.session.userId } });
+        @Ctx() { req }: ApolloContext
+    ): Promise<User> {
+        const currentUser = await User.findOne(req.session.userId);
 
-        return currentUser;
+        return currentUser!;
     }
 
     @Mutation(() => Boolean)
     async login(
-        @Arg("username") username: string,
+        @Arg("usernameOrEmail") usernameOrEmail: string,
         @Arg("password") password: string,
-        @Ctx() { req }: ContextType
-    ): Promise<boolean> {
-        const user = await User.findOne({ where: { username: username.toLowerCase() } });
+        @Ctx() { req }: ApolloContext
+    ): Promise<Boolean> {
+        const lookBy = validator.isEmail(usernameOrEmail) ? 
+            { email: usernameOrEmail } : 
+            { username: usernameOrEmail };
+
+        console.log("findBy: ", lookBy);
+
+        const user = await User.findOne({ where: lookBy });
 
         if(!user) {
-            throw new FieldError("username", "Such user doesn't exist.");
+            throw new UserInputError(`User with this ${lookBy.username ? "username" : "email"} does not exist.`, {
+                field: "usernameOrEmail"
+            });
         }
 
-        const passwordVerificationResult = await argon2.verify(user.password, password);
+        const passwordVerification = await argon2.verify(user.password, password);
 
-        // console.log(`ver result: ${passwordVerificationResult} | hash: ${user.password} | password: ${password}`);
-
-        if(!passwordVerificationResult) {
-            throw new FieldError("password", "Incorrect password");
+        if(!passwordVerification) {
+            throw new UserInputError(`Invalid password`, {
+                field: "password"
+            });
         }
-        
+
+        // Succeed
+
         req.session.userId = user.id;
 
         return true;
@@ -47,27 +56,37 @@ export default class UserResolver {
     @Mutation(() => Boolean)
     async register(
         @Arg("username") username: string,
+        @Arg("email") email: string,
         @Arg("password") password: string
     ): Promise<Boolean> {
-        if(!validator.isLength(username, { min: 3 })) {
-            throw new FieldError("username", "Username must be at least 3 characters long.");
-        }
+        await registerSchema.validate({
+            username,
+            email,
+            password
+        });
 
-        if(!validator.isLength(password, { min: 3 })) {
-            throw new FieldError("password", "Password must be at least 3 characters long.");
-        }
-
-        const lowerUsername = username.toLowerCase();
         const hashedPassword = await argon2.hash(password);
 
         try {
             await User.insert({
-                username: lowerUsername,
+                username,
+                email,
                 password: hashedPassword
             });
-        } catch {
-            if(await User.findOne({ where: { username: lowerUsername } })) {
-                throw new FieldError("username", "This username is already taken.");
+        } catch(err) {
+
+            const isUsernameError = err.detail.includes("username");
+            const wrongFieldName = isUsernameError ? "username" : "email";
+            const wrongFieldValue = isUsernameError ? username : email;
+
+            if(await User.findOne({ 
+                where: { 
+                    [wrongFieldName]: wrongFieldValue 
+                } 
+            })) {
+                throw new UserInputError(`This ${wrongFieldName} is already taken`, {
+                    field: wrongFieldName
+                });
             }
 
             throw new ApolloError("Something went wrong");
@@ -75,5 +94,4 @@ export default class UserResolver {
 
         return true;
     }
-
 }
