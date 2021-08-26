@@ -1,8 +1,0 @@
-query GetMemberIds($groupId: Int!) {
-  getGroupMembers(groupId: $groupId) {
-    isAdmin
-    member {
-      id
-    }
-  }
-}
