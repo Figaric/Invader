@@ -8,6 +8,7 @@ import HandleMutation from '../../utils/HandleMutation';
 import { useRouter } from 'next/router';
 import InputField from '../../components/shared/InputField';
 import NextLink from "next/link";
+import { RegisterMutation, RegisterMutationVariables, useRegisterMutation } from '../../generated/graphql';
 
 const registerSchema = yup.object().shape({
     username: yup
@@ -28,6 +29,7 @@ const registerSchema = yup.object().shape({
 
 function Register() {
     const router = useRouter();
+    const [register] = useRegisterMutation();
 
     return (
         <Layout>
@@ -46,13 +48,14 @@ function Register() {
                     <Formik
                         validationSchema={registerSchema}
                         initialValues={{ username: "", email: "", password: "" }}
-                        onSubmit={async (values, { setSubmitting }) => {
-                            setSubmitting(true);
+                        onSubmit={async (values, { setFieldError }) => {
+                            const { error } = await HandleMutation<RegisterMutation, RegisterMutationVariables>(values, register);
 
-                            setTimeout(() => {
-                                console.log(values);
-                                setSubmitting(false);
-                            }, 3000);
+                            if(error) {
+                                return setFieldError(error.field, error.message);
+                            }
+
+                            router.push("/account/login");
                         }}>
                         {({ isSubmitting }) => (
                             <Form>

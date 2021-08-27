@@ -8,6 +8,7 @@ import Layout from '../../components/shared/Layout';
 import { defaultShadow } from '../../theme';
 import HandleMutation from '../../utils/HandleMutation';
 import * as yup from "yup";
+import { LoginMutation, LoginMutationVariables, useLoginMutation } from '../../generated/graphql';
 
 const loginSchema = yup.object().shape({
     usernameOrEmail: yup
@@ -23,7 +24,7 @@ const loginSchema = yup.object().shape({
 
 function Login() {
     const router = useRouter();
-    const [login] = useLogin
+    const [login] = useLoginMutation();
 
     return (
         <Layout>
@@ -42,13 +43,14 @@ function Login() {
                     <Formik
                         validationSchema={loginSchema}
                         initialValues={{ usernameOrEmail: "", password: "" }}
-                        onSubmit={async (values, { setSubmitting }) => {
-                            setSubmitting(true);
+                        onSubmit={async (values, { setFieldError }) => {
+                            const { error } = await HandleMutation<LoginMutation, LoginMutationVariables>(values, login);
 
-                            setTimeout(() => {
-                                console.log(values);
-                                setSubmitting(false);
-                            }, 3000);
+                            if(error) {
+                                return setFieldError(error.field, error.message);
+                            }
+
+                            router.push("/");
                         }}>
                         {({ isSubmitting }) => (
                             <Form>
