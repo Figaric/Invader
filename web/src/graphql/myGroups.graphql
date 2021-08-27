@@ -1,7 +1,10 @@
 query MyGroups {
   myGroups {
-    id
-    name
-    description
+    isAdmin,
+    groupId,
+    group {
+     	name
+    	description 
+    }
   }
 }
