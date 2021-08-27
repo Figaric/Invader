@@ -24,5 +24,6 @@ export default class GroupMember extends BetterEntity {
     groupId: number;
     @ManyToOne(() => Group, g => g.members)
     @JoinColumn({ name: "groupId" })
+    @Field(() => Group)
     group: Group;
 }
