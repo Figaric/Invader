@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import React from 'react'
 
 const Layout: React.FC = ({ children }) => {
@@ -6,9 +6,10 @@ const Layout: React.FC = ({ children }) => {
         <Flex
             justifyContent={"center"}
             alignItems={"flex-start"}
-            h={"100vh"}
-            bg={"superDark"}>
-            {children}
+            h={"100vh"}>
+            <Box>
+                {children}
+            </Box>
         </Flex>
     )
 }
