@@ -13,7 +13,13 @@ function Index() {
   }
 
   return (
-    <div>Hello!</div>
+    <div>
+      <p>
+        Here is
+
+        some text for you
+      </p>
+    </div>
   )
 }
 
