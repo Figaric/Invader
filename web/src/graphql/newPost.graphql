@@ -1,0 +1,7 @@
+subscription NewPost {
+  newPost {
+    id
+    title
+    text
+  }
+}
