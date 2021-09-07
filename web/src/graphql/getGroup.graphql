@@ -1,5 +1,5 @@
 query GetGroup($groupId: Int!) {
-  getGroup(groupId: $groupId) {
+  group(groupId: $groupId) {
     id
     name
     description

@@ -1,7 +1,7 @@
 query GetGroupMembers($groupId: Int!) {
-  getGroupMembers(groupId: $groupId) {
-    isAdmin,
-    memberId,
+  groupMembers(groupId: $groupId) {
+    isAdmin
+    memberId
     member {
       username
     }
