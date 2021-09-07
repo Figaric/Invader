@@ -90,24 +90,24 @@ export type Post = {
 export type Query = {
   __typename?: 'Query';
   me: User;
-  getPosts: Array<Post>;
+  posts: Array<Post>;
   myGroups: Array<GroupMember>;
-  getGroupMembers: Array<GroupMember>;
-  getGroup?: Maybe<Group>;
+  groupMembers: Array<GroupMember>;
+  group: Group;
 };
 
 
-export type QueryGetPostsArgs = {
+export type QueryPostsArgs = {
   groupId: Scalars['Int'];
 };
 
 
-export type QueryGetGroupMembersArgs = {
+export type QueryGroupMembersArgs = {
   groupId: Scalars['Int'];
 };
 
 
-export type QueryGetGroupArgs = {
+export type QueryGroupArgs = {
   groupId: Scalars['Int'];
 };
 
@@ -145,21 +145,21 @@ export type GetGroupQueryVariables = Exact<{
 }>;
 
 
-export type GetGroupQuery = { __typename?: 'Query', getGroup?: Maybe<{ __typename?: 'Group', id: number, name: string, description: string }> };
+export type GetGroupQuery = { __typename?: 'Query', group: { __typename?: 'Group', id: number, name: string, description: string } };
 
 export type GetGroupMembersQueryVariables = Exact<{
   groupId: Scalars['Int'];
 }>;
 
 
-export type GetGroupMembersQuery = { __typename?: 'Query', getGroupMembers: Array<{ __typename?: 'GroupMember', isAdmin: boolean, memberId: number, member: { __typename?: 'User', username: string } }> };
+export type GetGroupMembersQuery = { __typename?: 'Query', groupMembers: Array<{ __typename?: 'GroupMember', isAdmin: boolean, memberId: number, member: { __typename?: 'User', username: string } }> };
 
 export type GetPostsQueryVariables = Exact<{
   groupId: Scalars['Int'];
 }>;
 
 
-export type GetPostsQuery = { __typename?: 'Query', getPosts: Array<{ __typename?: 'Post', id: number, title: string, text: string, author: { __typename?: 'User', id: number, username: string } }> };
+export type GetPostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', id: number, title: string, text: string }> };
 
 export type JoinGroupMutationVariables = Exact<{
   groupId: Scalars['Int'];
@@ -187,6 +187,11 @@ export type MyGroupsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type MyGroupsQuery = { __typename?: 'Query', myGroups: Array<{ __typename?: 'GroupMember', isAdmin: boolean, groupId: number, group: { __typename?: 'Group', name: string, description: string } }> };
+
+export type NewPostSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NewPostSubscription = { __typename?: 'Subscription', newPost: { __typename?: 'Post', id: number, title: string, text: string } };
 
 export type RegisterMutationVariables = Exact<{
   username: Scalars['String'];
@@ -265,7 +270,7 @@ export type CreatePostMutationResult = Apollo.MutationResult<CreatePostMutation>
 export type CreatePostMutationOptions = Apollo.BaseMutationOptions<CreatePostMutation, CreatePostMutationVariables>;
 export const GetGroupDocument = gql`
     query GetGroup($groupId: Int!) {
-  getGroup(groupId: $groupId) {
+  group(groupId: $groupId) {
     id
     name
     description
@@ -302,7 +307,7 @@ export type GetGroupLazyQueryHookResult = ReturnType<typeof useGetGroupLazyQuery
 export type GetGroupQueryResult = Apollo.QueryResult<GetGroupQuery, GetGroupQueryVariables>;
 export const GetGroupMembersDocument = gql`
     query GetGroupMembers($groupId: Int!) {
-  getGroupMembers(groupId: $groupId) {
+  groupMembers(groupId: $groupId) {
     isAdmin
     memberId
     member {
@@ -341,14 +346,10 @@ export type GetGroupMembersLazyQueryHookResult = ReturnType<typeof useGetGroupMe
 export type GetGroupMembersQueryResult = Apollo.QueryResult<GetGroupMembersQuery, GetGroupMembersQueryVariables>;
 export const GetPostsDocument = gql`
     query GetPosts($groupId: Int!) {
-  getPosts(groupId: $groupId) {
+  posts(groupId: $groupId) {
     id
     title
     text
-    author {
-      id
-      username
-    }
   }
 }
     `;
@@ -513,6 +514,37 @@ export function useMyGroupsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<M
 export type MyGroupsQueryHookResult = ReturnType<typeof useMyGroupsQuery>;
 export type MyGroupsLazyQueryHookResult = ReturnType<typeof useMyGroupsLazyQuery>;
 export type MyGroupsQueryResult = Apollo.QueryResult<MyGroupsQuery, MyGroupsQueryVariables>;
+export const NewPostDocument = gql`
+    subscription NewPost {
+  newPost {
+    id
+    title
+    text
+  }
+}
+    `;
+
+/**
+ * __useNewPostSubscription__
+ *
+ * To run a query within a React component, call `useNewPostSubscription` and pass it any options that fit your needs.
+ * When your component renders, `useNewPostSubscription` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the subscription, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewPostSubscription({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useNewPostSubscription(baseOptions?: Apollo.SubscriptionHookOptions<NewPostSubscription, NewPostSubscriptionVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useSubscription<NewPostSubscription, NewPostSubscriptionVariables>(NewPostDocument, options);
+      }
+export type NewPostSubscriptionHookResult = ReturnType<typeof useNewPostSubscription>;
+export type NewPostSubscriptionResult = Apollo.SubscriptionResult<NewPostSubscription>;
 export const RegisterDocument = gql`
     mutation Register($username: String!, $email: String!, $password: String!) {
   register(username: $username, email: $email, password: $password)
