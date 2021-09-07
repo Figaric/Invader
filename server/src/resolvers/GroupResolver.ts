@@ -3,7 +3,8 @@ import { Arg, Ctx, Int, Mutation, Query, Resolver } from "type-graphql";
 import { getConnection } from "typeorm";
 import GroupMember from "../entities/GroupMember";
 import ApolloContext from "../types/ApolloContext";
-import { UserInputError } from "apollo-server-core";
+import FieldError from "../errors/FieldError";
+import NotFoundError from "../errors/NotFoundError";
 
 @Resolver(Group)
 export default class GroupResolver {
@@ -27,7 +28,7 @@ export default class GroupResolver {
     }
 
     @Query(() => [GroupMember])
-    async getGroupMembers(
+    async groupMembers(
         @Arg("groupId", () => Int) groupId: number
     ): Promise<GroupMember[]> {
         const groupMembers = await getConnection("development").query(`
@@ -45,17 +46,28 @@ export default class GroupResolver {
     }
 
     @Query(() => Group)
-    async getGroup(
+    async group(
         @Arg("groupId", () => Int) groupId: number
     ): Promise<Group> {
         const group = await Group.findOne(groupId);
 
         if(!group) {
-            throw new Error("Not Found");
+            throw new NotFoundError();
         }
 
         return group;
     }
+
+    // @Mutation(() => Boolean)
+    // async editGroupInfo(
+    //     @Arg("groupId", () => Int) groupId: number
+    // ): Promise<Boolean> {
+    //     const group = await Group.findOne(groupId);
+
+        
+
+    //     return true;
+    // }
 
     @Mutation(() => Boolean)
     async leaveGroup(
@@ -69,9 +81,7 @@ export default class GroupResolver {
             });
         } catch {
             if(!(await GroupMember.findOne({ where: { groupId, memberId: req.session.userId } }))) {
-                throw new UserInputError("You're not a member of this group", {
-                    field: "groupId"
-                });
+                throw new FieldError("groupId", "You're not a member of this group");
             }
         }
         
@@ -91,9 +101,7 @@ export default class GroupResolver {
             });
         } catch {
             if(await GroupMember.findOne({ where: { groupId, memberId: req.session.userId } })) {
-                throw new UserInputError("You're already in this group", {
-                    field: "groupId"
-                });
+                throw new FieldError("groupId", "You're already in this group");
             }
         }
 
@@ -118,9 +126,7 @@ export default class GroupResolver {
                 await t.insert(Group, newGroup);
             } catch {
                 if(await Group.findOne({ where: { name } })) {
-                    throw new UserInputError("This name is already taken.", {
-                        field: "name"
-                    });
+                    throw new FieldError("name", "This name is already taken.");
                 }
             }
 

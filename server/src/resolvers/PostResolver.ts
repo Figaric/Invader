@@ -1,15 +1,15 @@
 import Post from "../entities/Post";
-import { Arg, Ctx, Int, Mutation, PubSub, PubSubEngine, Query, Resolver, Root, Subscription, UseMiddleware } from "type-graphql";
 import { getConnection } from "typeorm";
 import Group from "../entities/Group";
-import { UserInputError } from "apollo-server-core";
 import ApolloContext from "../types/ApolloContext";
 import MustBeAuth from "../middlewares/MustBeAuth";
+import { Resolver, Query, Arg, Int, Subscription, Root, Mutation, UseMiddleware, Ctx, PubSub, PubSubEngine } from "type-graphql";
+import FieldError from "../errors/FieldError";
 
 @Resolver(Post)
 export default class PostResolver {
     @Query(() => [Post])
-    async getPosts(
+    async posts(
         @Arg("groupId", () => Int) groupId: number
     ): Promise<Post[]> {
         const posts = await getConnection("development").query(`
@@ -47,9 +47,7 @@ export default class PostResolver {
         const group = await Group.findOne({ where: { id: groupId } });
 
         if(!group) {
-            throw new UserInputError("Group with this id is not found", {
-                field: "groupId"
-            });
+            throw new FieldError("groupId", "Group with this id is not found");
         }
 
         const post = Post.create({

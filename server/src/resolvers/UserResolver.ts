@@ -2,14 +2,16 @@ import User from "../entities/User";
 import { Arg, Ctx, Mutation, Query, Resolver, UseMiddleware } from "type-graphql";
 import ApolloContext from "../types/ApolloContext";
 import validator from "validator";
-import { ApolloError, UserInputError } from "apollo-server-express";
+import { ApolloError } from "apollo-server-express";
 import argon2 from "argon2";
 import registerSchema from "../validation/RegisterSchema";
+import FieldError from "../errors/FieldError";
+import MustBeAuth from "../middlewares/MustBeAuth";
 
 @Resolver(User)
 export default class UserResolver {
     @Query(() => User)
-    @UseMiddleware()
+    @UseMiddleware(MustBeAuth)
     async me(
         @Ctx() { req }: ApolloContext
     ): Promise<User> {
@@ -33,17 +35,13 @@ export default class UserResolver {
         const user = await User.findOne({ where: lookBy });
 
         if(!user) {
-            throw new UserInputError(`User with this ${lookBy.username ? "username" : "email"} does not exist.`, {
-                field: "usernameOrEmail"
-            });
+            throw new FieldError("usernameOrEmail", `User with this ${lookBy.username ? "username" : "email"} does not exist.`);
         }
 
         const passwordVerification = await argon2.verify(user.password, password);
 
         if(!passwordVerification) {
-            throw new UserInputError(`Invalid password`, {
-                field: "password"
-            });
+            throw new FieldError("password", `Invalid password`);
         }
 
         // Succeed
@@ -84,9 +82,7 @@ export default class UserResolver {
                     [wrongFieldName]: wrongFieldValue 
                 } 
             })) {
-                throw new UserInputError(`This ${wrongFieldName} is already taken`, {
-                    field: wrongFieldName
-                });
+                throw new FieldError(wrongFieldName, `This ${wrongFieldName} is already taken`);
             }
 
             throw new ApolloError("Something went wrong");
