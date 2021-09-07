@@ -1,15 +1,15 @@
-import { UserInputError, ValidationError } from "apollo-server-core";
+import { ValidationError } from "apollo-server-core";
 import { GraphQLError } from "graphql";
+import FieldError from "../errors/FieldError";
 
 export default function handleError(error: GraphQLError) {
-    
 
-    if(error.originalError instanceof UserInputError) {
+    if(error.originalError instanceof FieldError) {
         return {
             field: error.extensions?.field,
-            message: error.message, 
+            message: error.message,
             code: error.extensions?.code
-        };
+        }
     }
 
     if(error.originalError instanceof ValidationError) {
@@ -21,6 +21,8 @@ export default function handleError(error: GraphQLError) {
             code: "BAD_USER_INPUT"
         }
     }
+
+    console.log("err: ", error);
 
     return error;
 }
