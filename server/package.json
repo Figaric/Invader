@@ -1,44 +1,42 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
-  "main": "dist/index.js",
+  "description": "Server for the Invader social-media",
   "scripts": {
-    "dev": "nodemon dist/index.js",
-    "watch": "tsc -w",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "watch": "tsc -w",
+    "start": "node dist/index.js",
+    "dev": "nodemon ./dist/index.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Jigen",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^3.7.0",
+    "apollo-server-express": "^3.6.1",
+    "argon2": "^0.28.3",
+    "connect-redis": "^6.0.0",
+    "express": "^4.17.2",
+    "express-session": "^1.17.2",
+    "graphql": "15.7.2",
+    "graphql-fields": "^2.0.3",
+    "ioredis": "^4.28.2",
+    "prisma-class-generator": "^0.1.11",
+    "reflect-metadata": "^0.1.13",
+    "type-graphql": "^1.1.1",
+    "yup": "^0.32.11"
+  },
   "devDependencies": {
     "@types/argon2": "^0.15.0",
-    "@types/connect-redis": "^0.0.17",
-    "@types/cors": "^2.8.12",
+    "@types/connect-redis": "^0.0.18",
+    "@types/express": "^4.17.13",
     "@types/express-session": "^1.17.4",
-    "@types/ioredis": "^4.26.7",
-    "@types/node": "^16.6.1",
-    "@types/validator": "^13.6.3",
-    "nodemon": "^2.0.12",
-    "typescript": "^4.3.5"
+    "@types/node": "^17.0.5",
+    "nodemon": "^2.0.15",
+    "prisma": "^3.7.0",
+    "typescript": "^4.5.4"
   },
-  "dependencies": {
-    "apollo-server-core": "^3.1.2",
-    "apollo-server-express": "^3.1.2",
-    "argon2": "^0.28.2",
-    "connect-redis": "^6.0.0",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "express-session": "^1.17.2",
-    "graphql": "^15.5.1",
-    "ioredis": "^4.27.7",
-    "pg": "^8.7.1",
-    "reflect-metadata": "^0.1.13",
-    "subscriptions-transport-ws": "^0.9.19",
-    "type-graphql": "^1.1.1",
-    "typeorm": "^0.2.37",
-    "validator": "^13.6.0",
-    "yup": "^0.32.9"
+  "prisma": {
+    "schema": "src/prisma/schema.prisma"
   }
 }

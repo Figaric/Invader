@@ -1,7 +1,0 @@
-query GetGroup($groupId: Int!) {
-  group(groupId: $groupId) {
-    id
-    name
-    description
-  }
-}

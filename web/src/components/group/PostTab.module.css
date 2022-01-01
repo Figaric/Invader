@@ -1,5 +1,0 @@
-.container:hover {
-  box-shadow: var(--default-shadow);
-  transform: scale(1.02);
-  border-radius: 1rem;
-}

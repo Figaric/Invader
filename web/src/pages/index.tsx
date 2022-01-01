@@ -1,26 +1,18 @@
-import { useEffect, useState } from "react";
-import Loading from "../components/shared/Loading";
+import { motion } from "framer-motion";
+import Button from "../components/Button";
+import Card from "../components/Card";
 
 function Index() {
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setTimeout(() => setLoading(false), 3000);
-  });
-
-  if(loading) {
-    return <Loading />
-  }
-
-  return (
-    <div>
-      <p>
-        Here is
-
-        some text for you
-      </p>
-    </div>
-  )
+    return (
+        <div>
+            <Card
+                withAnimation>
+                <p>
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat temporibus officiis aperiam consequatur modi, sed hic neque qui ea a.
+                </p>
+            </Card>
+        </div>
+    );
 }
 
 export default Index;

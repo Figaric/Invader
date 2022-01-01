@@ -1,7 +1,0 @@
-query GetPosts($groupId: Int!) {
-  posts(groupId: $groupId) {
-    id
-    title
-    text
-  }
-}
