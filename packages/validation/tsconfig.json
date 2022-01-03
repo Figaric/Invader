@@ -1,0 +1,9 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Server",
+    "extends": "tsconfig/node.json",
+    "files": [
+      "src/index.ts"
+    ]
+  }
+  

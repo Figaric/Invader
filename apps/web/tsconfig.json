@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Next.js",
+  "extends": "tsconfig/base.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "preserve"
+  }
+}

@@ -1,0 +1,15 @@
+generator defaultGenerator {
+    provider = "prisma-client-js"
+}
+
+datasource database {
+    provider = "postgresql"
+    url = "postgresql://postgres:postgres@localhost:5432/invader-dev?schema=public"
+}
+
+model User {
+    id Int @default(autoincrement()) @unique
+    username String
+    email String @unique
+    password String
+}
