@@ -4,7 +4,8 @@
     "extends": "./base.json",
     "compilerOptions": {
       "module": "commonjs",
-      "sourceMap": true
+      "sourceMap": true,
+      "experimentalDecorators": true
     },
     "exclude": [
       "node_modules"

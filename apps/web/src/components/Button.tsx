@@ -37,6 +37,7 @@ const Button: React.FC<ButtonProps> = ({ children, isSubmit }) => {
             </motion.a>
             {isSubmit && (
                 <input 
+                    ref={hiddenInputRef}
                     type="submit"
                     className="
                         hidden

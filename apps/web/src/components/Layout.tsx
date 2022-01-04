@@ -10,7 +10,7 @@ const Layout: React.FC = ({ children }) => {
             bg-dark
         ">
             <Head>
-                <meta name="viewport" content="width-device-width, initial-scale=1" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <title>Invader - Homepage</title>
             </Head>
 

@@ -16,48 +16,8 @@ const InputField: React.FC<InputFieldProps> = ({
     const [field, { error }] = useField(props);
 
     return (
-        <div
-            className="
-            ">
-            <div className="
-                flex
-                flex-row
-                mb-1
-            ">
-                <label 
-                    htmlFor={field.name} 
-                    className="
-                        mr-1
-                        text-lg
-                    ">
-                    {label}
-                </label>
-                {required && (
-                    <span className="
-                        text-orange-primary
-                    ">
-                        *
-                    </span>
-                )}
-            </div>
-            <div>
-                <motion.input 
-                    className="
-                        text-lg
-                        border
-                        border-light-gray
-                        bg-dark
-                        rounded-xl
-                        py-1
-                        px-4
-                        outline-0
-                    "
-                    id={field.name}
-                    {...field} 
-                    {...props}
-                    whileFocus={{ 
-                    }} />
-            </div>
+        <div>
+            Input Field!
         </div>
     );
 }

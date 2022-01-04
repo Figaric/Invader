@@ -10,7 +10,7 @@ function RegisterForm() {
             onSubmit={(values) => {
                 console.log("values: ", values);
             }}>
-            {({ isSubmitting }) => (
+            {() => (
                 <Form>
                     <InputField
                         label="Username"
@@ -19,7 +19,9 @@ function RegisterForm() {
                         label="Email"
                         name="email" />
                     <Button
-                        isSubmit />
+                        isSubmit>
+                        Register
+                    </Button>
                 </Form>
             )}
         </Formik>
